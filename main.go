@@ -13,7 +13,7 @@ type Matrix struct {
 }
 
 func (m *Matrix) get(x, y int) int {
-	fmt.Println("Cell at " + x + ", " + y + " is " + (y * m.width + x))
+	fmt.Printf("Cell at %d, %d is %d\n", x, y, (y * m.width + x))
 	return m.cells[y * m.width + x]
 } 
 
@@ -28,10 +28,11 @@ type Game struct {
 }
 
 func (g *Game) Draw (screen *ebiten.Image) {
+
 	fmt.Println("Draw")
 	g.counter++
 	if g.block == nil {
-		g.block = &Matrix{cells:make([]int, 4), width:2, height:2}
+		g.block = &Matrix{cells:[]int{2, 2, 2, 2}, width:2, height:2}
 		g.blockX = 0
 		g.blockY = 0
 	} else if (g.counter % 10 == 0) {
@@ -40,25 +41,29 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	
 	image := ebiten.NewImage(g.cell_size, g.cell_size)
 	options := &ebiten.DrawImageOptions {}
+	screen.Fill(color.RGBA64{255, 0, 255, 255})
+	image.Fill(g.colors[1])
 
 	for i:=0; i < g.field.width; i++ {
 		for j := 0; j < g.field.height; j++ {
 			image.Fill(g.colors[g.field.get(i, j)])
+			options.GeoM.Reset()
 			options.GeoM.Translate(float64(i*g.cell_size), float64(j*g.cell_size))
+			fmt.Printf("Drawing cell at %f, %f\n", float64(i*g.cell_size), float64(j*g.cell_size))
 			screen.DrawImage(image, options)
 		}		
 	}
 
-	// imageOne := ebiten.NewImage(20, 20)
-	// imageTwo := ebiten.NewImage(10, 10)
-	// imageOne.Fill(color.RGBA{255, 255, 0, 255})
-	// imageTwo.Fill(color.RGBA{0, 255, 0, 255})
-	// optionsOne := &ebiten.DrawImageOptions {}
-	// optionsOne.GeoM.Translate(float64((g.counter/2) % 100), 0)
-	// screen.DrawImage(imageOne, optionsOne)
-	// optionsTwo := &ebiten.DrawImageOptions {}
-	// optionsTwo.GeoM.Translate(0, float64(g.counter % 100))
-	// screen.DrawImage(imageTwo, optionsTwo)
+	for i:=0; i<g.block.width; i++ {
+		for j:=0; j<g.block.height; j++ {
+			image.Fill(g.colors[g.block.get(i,j)])
+			options.GeoM.Reset()
+			options.GeoM.Translate(float64((g.blockX + i)*g.cell_size), float64((g.blockY + j)*g.cell_size))
+			screen.DrawImage(image, options)
+		}
+	}
+
+
 }
 
 func (g *Game) Update () error {
@@ -68,7 +73,7 @@ func (g *Game) Update () error {
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	fmt.Println("Layout")
-	return g.field.width * g.cell_size + 200, g.field.height * g.cell_size
+	return g.field.width * g.cell_size, g.field.height * g.cell_size
 }
 
 func main() {	
@@ -81,7 +86,7 @@ func main() {
 		},
 		cell_size: 10,
 		colors: []color.RGBA{
-			{255, 0, 0, 255},
+			{32, 32, 32, 255},
 			{255, 0, 0, 255},
 			{0, 255, 0, 255},
 			{0, 0, 255, 255},
