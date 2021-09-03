@@ -65,11 +65,11 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
 	if g.block == nil {
-		fmt.Println(rand.Intn(7))
+		fmt.Println(rand.Intn(8))
 		g.block = &blocks[rand.Intn(4)]
 		g.blockX = 0
 		g.blockY = 0
-	} else if (g.counter % 100 == 0) {
+	} else if (g.counter % 10 == 0) {
 		g.blockY += 1
 	}
 	
@@ -102,6 +102,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	if (g.BlockLanded()) {
 		g.MergeBlock()
+		g.RemoveLines()
 	}
 
 }
@@ -114,7 +115,7 @@ func (g *Game) BlockLanded() bool {
 				fmt.Printf("%d + %d >= %d\n", j, g.blockY, g.field.height)
 				return true
 			}
-			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY) > 0) {
+			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY + 1) > 0) {
 				return true
 			}
 		}
@@ -127,11 +128,36 @@ func (g *Game) MergeBlock() {
 		for j:=0; j<g.block.height; j++ {
 			fmt.Printf("g.field.set(%d + %d, %d + %d, %d)\n", i, g.blockX, j, g.blockY, g.block.get(i, j))
 			if(g.block.get(i, j) > 0) {
-				g.field.set(i + g.blockX, j + g.blockY - 1, g.block.get(i, j))
+				g.field.set(i + g.blockX, j + g.blockY, g.block.get(i, j))
 			}			
 		}
 	}	
 	g.block = nil
+}
+
+func (g *Game) LineFull (j int) bool {
+	for i:= 0; i < g.field.width; i++ {
+		if g.field.get(i, j) == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (g *Game) RemoveLine(j int) {
+	for k :=j; k>1; k-- {
+		for i :=0; i<g.field.width; i++ {
+			g.field.set(i, k, g.field.get(i, k-1))
+		}
+	}
+}
+
+func (g *Game) RemoveLines() {
+	for j:=g.field.height-1; j>0; j-- {
+		for g.LineFull(j) {
+			g.RemoveLine(j)
+		}
+	}
 }
 
 func (g *Game) Update () error {
@@ -162,9 +188,9 @@ func main() {
 	fmt.Println("Start Game")
 	ebiten.RunGame(&Game{
 		field: &Matrix{
-			cells:make([]int, 10*10),
+			cells:make([]int, 10*20),
 			width:10,
-			height:10,			
+			height:20,			
 		},
 		cell_size: 10,
 		colors: []color.RGBA{
