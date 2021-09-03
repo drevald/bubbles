@@ -68,9 +68,9 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		fmt.Println(rand.Intn(6))
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
-		g.blockY = 0
+		g.blockY = g.field.height - g.block.height - 1 
 	} else if (g.counter % 25 == 0) {
-		g.blockY += 1
+		g.blockY -= 1
 	}
 	
 	image := ebiten.NewImage(g.cell_size, g.cell_size)
@@ -110,12 +110,14 @@ func (g *Game) Draw (screen *ebiten.Image) {
 func (g *Game) BlockLanded() bool {
 	for i:=0; i<g.block.width; i++ {
 		for j:=0; j<g.block.height; j++ {
-			if (g.block.get(i, j) > 0 && j + g.blockY + 1>= g.field.height) {
+			if (g.block.get(i, j) > 0 && j + g.blockY == 0) {
 				fmt.Println(g.block)
 				fmt.Printf("%d + %d >= %d\n", j, g.blockY, g.field.height)
 				return true
-			}
-			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY + 1) > 0) {
+			}	
+				
+			fmt.Printf("g.block.get(%d, %d) > 0 && g.field.get(%d + %d, %d + %d + 1) > 0\n", i, j, i, g.blockX, j, g.blockY)
+			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY - 1) > 0) {
 				return true
 			}
 		}
@@ -136,7 +138,9 @@ func (g *Game) MergeBlock() {
 }
 
 func (g *Game) LineFull (j int) bool {
+	fmt.Printf("Checking line %d\n", j)
 	for i:= 0; i < g.field.width; i++ {
+		fmt.Printf("Checking cell %d, %d = %d\n", j, i, g.field.get(i,j))
 		if g.field.get(i, j) == 0 {
 			return false
 		}
@@ -145,15 +149,17 @@ func (g *Game) LineFull (j int) bool {
 }
 
 func (g *Game) RemoveLine(j int) {
-	for k :=j; k>1; k-- {
+	fmt.Printf("Removing line %d", j)
+	for k :=j; k < g.field.height-1; k++ {
 		for i :=0; i<g.field.width; i++ {
-			g.field.set(i, k, g.field.get(i, k-1))
+			fmt.Printf("replacing g.field.set(%d, %d, g.field.get(%d, %d+1))\n", i, k, i, k)
+			g.field.set(i, k, g.field.get(i, k+1))
 		}
 	}
 }
 
 func (g *Game) RemoveLines() {
-	for j:=g.field.height-1; j>0; j-- {
+	for j:=0; j < g.field.height; j++ {
 		for g.LineFull(j) {
 			g.RemoveLine(j)
 		}
