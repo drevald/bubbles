@@ -1,5 +1,4 @@
-module github.com/e-one/e-one
-
+module github.com/xyetris/xyetris
 go 1.16
 
 require (
