@@ -65,11 +65,11 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
 	if g.block == nil {
-		fmt.Println(rand.Intn(8))
-		g.block = &blocks[rand.Intn(4)]
+		fmt.Println(rand.Intn(6))
+		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
 		g.blockY = 0
-	} else if (g.counter % 10 == 0) {
+	} else if (g.counter % 25 == 0) {
 		g.blockY += 1
 	}
 	
