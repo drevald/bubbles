@@ -44,11 +44,12 @@ type Game struct {
 	blockX int
 	blockY int
 	cell_size int
+	freq int
 	colors []color.RGBA	
 }
 
 func (g *Game) Drop() {
-	fmt.Println("Not implemented yet")
+	g.freq = 1
 }
 
 var blocks = []Matrix{
@@ -69,7 +70,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
 		g.blockY = 0
-	} else if (g.counter % 25 == 0) {
+	} else if (g.counter % g.freq == 0) {
 		g.blockY += 1
 	}
 	
@@ -133,6 +134,7 @@ func (g *Game) MergeBlock() {
 		}
 	}	
 	g.block = nil
+	g.freq = 25
 }
 
 func (g *Game) LineFull (j int) bool {
@@ -203,5 +205,6 @@ func main() {
 			{0, 255, 255, 255},
 			{255, 255, 255, 255},			
 		},
+		freq:25,
 	}) 
 }
