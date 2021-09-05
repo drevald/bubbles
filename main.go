@@ -2,11 +2,17 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"image/color"
+	"image/png"
+	_ "image/png"
+	"math/rand"
+	"os"
+	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
+
+var bubbleImage *ebiten.Image
 
 type Matrix struct {
 	cells []int
@@ -44,11 +50,22 @@ type Game struct {
 	blockX int
 	blockY int
 	cell_size int
-	colors []color.RGBA	
+	freq int
 }
 
 func (g *Game) Drop() {
-	fmt.Println("Not implemented yet")
+	g.freq = 1
+}
+
+var colors []color.RGBA	= []color.RGBA{
+	{5, 5, 5, 255},
+	{255, 0, 0, 255},
+	{0, 255, 0, 255},
+	{0, 0, 255, 255},
+	{255, 255, 0, 255},
+	{255, 0, 255, 255},
+	{0, 255, 255, 255},
+	{255, 255, 255, 255},			
 }
 
 var blocks = []Matrix{
@@ -69,33 +86,35 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
 		g.blockY = g.field.height - g.block.height - 1 
-	} else if (g.counter % 25 == 0) {
+	} else if (g.counter % g.freq == 0) {
 		g.blockY -= 1
 	}
 	
-	image := ebiten.NewImage(g.cell_size, g.cell_size)
 	options := &ebiten.DrawImageOptions {}
 	screen.Fill(color.RGBA64{255, 0, 255, 255})
-	image.Fill(g.colors[1])
+	bgImage := ebiten.NewImage(10, 10)
+	bgImage.Fill(colors[0])
 
 	// Draw glass
 	for i:=0; i < g.field.width; i++ {
 		for j := 0; j < g.field.height; j++ {
-			image.Fill(g.colors[g.field.get(i, j)])
 			options.GeoM.Reset()
 			options.GeoM.Translate(float64(i*g.cell_size), float64(j*g.cell_size))
-			screen.DrawImage(image, options)
+			if (g.field.get(i,j) > 0) {
+				screen.DrawImage(bubbleImage, options)
+			} else {
+				screen.DrawImage(bgImage, options)
+			}			
 		}		
 	}
 
 	// Draw block	
 	for i:=0; i<g.block.width; i++ {
 		for j:=0; j<g.block.height; j++ {
-			image.Fill(g.colors[g.block.get(i,j)])
 			options.GeoM.Reset()
 			options.GeoM.Translate(float64((g.blockX + i)*g.cell_size), float64((g.blockY + j)*g.cell_size))
 			if (g.block.get(i, j) > 0) {
-				screen.DrawImage(image, options)
+				screen.DrawImage(bubbleImage, options)
 			}			
 		}
 	}
@@ -114,8 +133,7 @@ func (g *Game) BlockLanded() bool {
 				fmt.Println(g.block)
 				fmt.Printf("%d + %d >= %d\n", j, g.blockY, g.field.height)
 				return true
-			}	
-				
+			}					
 			fmt.Printf("g.block.get(%d, %d) > 0 && g.field.get(%d + %d, %d + %d + 1) > 0\n", i, j, i, g.blockX, j, g.blockY)
 			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY - 1) > 0) {
 				return true
@@ -135,6 +153,7 @@ func (g *Game) MergeBlock() {
 		}
 	}	
 	g.block = nil
+	g.freq = 25
 }
 
 func (g *Game) LineFull (j int) bool {
@@ -192,22 +211,26 @@ func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeig
 
 func main() {	
 	fmt.Println("Start Game")
+
+	data, err := os.ReadFile("bubble.png")
+	if err != nil {
+		fmt.Println(err)
+	}
+	imageReader := bytes.NewReader(data)
+	image, err := png.Decode(imageReader)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	bubbleImage = ebiten.NewImageFromImage(image)
+
 	ebiten.RunGame(&Game{
 		field: &Matrix{
 			cells:make([]int, 10*20),
 			width:10,
 			height:20,			
 		},
-		cell_size: 10,
-		colors: []color.RGBA{
-			{32, 32, 32, 255},
-			{255, 0, 0, 255},
-			{0, 255, 0, 255},
-			{0, 0, 255, 255},
-			{255, 255, 0, 255},
-			{255, 0, 255, 255},
-			{0, 255, 255, 255},
-			{255, 255, 255, 255},			
-		},
+		cell_size: 10,	
+		freq:25,
 	}) 
 }
