@@ -85,7 +85,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		fmt.Println(rand.Intn(6))
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
-		g.blockY = g.field.height - g.block.height - 1 
+ 		g.blockY = g.field.height - g.block.height - 1 
 	} else if (g.counter % g.freq == 0) {
 		g.blockY -= 1
 	}
@@ -231,6 +231,6 @@ func main() {
 			height:20,			
 		},
 		cell_size: 10,	
-		freq:25,
+		freq:5,
 	}) 
 }
