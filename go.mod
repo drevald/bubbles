@@ -1,4 +1,4 @@
-module github.com/xyetris/xyetris
+module github.com/drevald/bubbles
 go 1.16
 
 require (
