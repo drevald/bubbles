@@ -134,7 +134,6 @@ func (g *Game) BlockLanded() bool {
 				fmt.Printf("%d + %d >= %d\n", j, g.blockY, g.field.height)
 				return true
 			}					
-			fmt.Printf("g.block.get(%d, %d) > 0 && g.field.get(%d + %d, %d + %d + 1) > 0\n", i, j, i, g.blockX, j, g.blockY)
 			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY - 1) > 0) {
 				return true
 			}
@@ -146,7 +145,6 @@ func (g *Game) BlockLanded() bool {
 func (g *Game) MergeBlock() {
 	for i:=0; i<g.block.width; i++ {
 		for j:=0; j<g.block.height; j++ {
-			fmt.Printf("g.field.set(%d + %d, %d + %d, %d)\n", i, g.blockX, j, g.blockY, g.block.get(i, j))
 			if(g.block.get(i, j) > 0) {
 				g.field.set(i + g.blockX, j + g.blockY, g.block.get(i, j))
 			}			
@@ -157,9 +155,7 @@ func (g *Game) MergeBlock() {
 }
 
 func (g *Game) LineFull (j int) bool {
-	fmt.Printf("Checking line %d\n", j)
 	for i:= 0; i < g.field.width; i++ {
-		fmt.Printf("Checking cell %d, %d = %d\n", j, i, g.field.get(i,j))
 		if g.field.get(i, j) == 0 {
 			return false
 		}
@@ -168,10 +164,8 @@ func (g *Game) LineFull (j int) bool {
 }
 
 func (g *Game) RemoveLine(j int) {
-	fmt.Printf("Removing line %d", j)
 	for k :=j; k < g.field.height-1; k++ {
 		for i :=0; i<g.field.width; i++ {
-			fmt.Printf("replacing g.field.set(%d, %d, g.field.get(%d, %d+1))\n", i, k, i, k)
 			g.field.set(i, k, g.field.get(i, k+1))
 		}
 	}
@@ -186,11 +180,26 @@ func (g *Game) RemoveLines() {
 }
 
 func (g *Game) Update () error {
-	
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+		for i := 0; i < g.block.width; i++ {
+			for j := 0; j < g.block.height; j++ {
+				fmt.Printf("g.block.get(%d, %d)=%d > 0 && (%d + %d) < 1\n", i, j, g.block.get(i, j), g.blockX, i)
+				if (g.block.get(i, j) > 0 && (g.blockX + i) < 1) {
+					return nil;
+				}
+			}
+		}		
 		g.blockX -= 1
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+		for i := 0; i < g.block.width; i++ {
+			for j := 0; j < g.block.height; j++ {
+				fmt.Printf("g.block.get(%d, %d)=%d > 0 && (%d + %d + 1) > %d\n", i, j, g.block.get(i, j), g.blockX, i, g.field.width)
+				if (g.block.get(i, j) > 0 && (g.blockX + i + 2) > g.field.width ) {
+					return nil;
+				}
+			}
+		}		
 		g.blockX += 1
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
@@ -231,6 +240,6 @@ func main() {
 			height:20,			
 		},
 		cell_size: 10,	
-		freq:5,
+		freq:50,
 	}) 
 }
