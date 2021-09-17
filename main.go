@@ -29,7 +29,7 @@ func (m *Matrix) set(i, j, value int) {
 } 
 
 func (m *Matrix) RotateRight() *Matrix {
-	fmt.Println("rotating right")
+	fmt.Println("Rotating right")
 	mRot := &Matrix{cells:make([]int, len(m.cells)), width:m.height, height: m.width }
 	for i:=0; i < m.width; i++ {
 		for j := 0; j < m.height; j++ {
@@ -40,6 +40,7 @@ func (m *Matrix) RotateRight() *Matrix {
 }
 
 func (m *Matrix) RotateLeft() *Matrix {
+	fmt.Println("Rotating left")
 	return m.RotateRight().RotateRight().RotateRight()
 }
 
@@ -82,10 +83,16 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
 	if g.block == nil {
-		fmt.Println(rand.Intn(6))
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
  		g.blockY = g.field.height - g.block.height - 1 
+		for i:=0; i<g.block.width; i++ {
+			for j:=0; j<g.block.height; j++ {
+				if (g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0) {
+					g.freq = 1000000
+				}			
+			}
+		}	 
 	} else if (g.counter % g.freq == 0) {
 		g.blockY -= 1
 	}
@@ -130,8 +137,6 @@ func (g *Game) BlockLanded() bool {
 	for i:=0; i<g.block.width; i++ {
 		for j:=0; j<g.block.height; j++ {
 			if (g.block.get(i, j) > 0 && j + g.blockY == 0) {
-				fmt.Println(g.block)
-				fmt.Printf("%d + %d >= %d\n", j, g.blockY, g.field.height)
 				return true
 			}					
 			if (g.block.get(i, j) > 0 && g.field.get(i + g.blockX, j + g.blockY - 1) > 0) {
@@ -181,32 +186,69 @@ func (g *Game) RemoveLines() {
 
 func (g *Game) Update () error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+		g.blockX -= 1
 		for i := 0; i < g.block.width; i++ {
 			for j := 0; j < g.block.height; j++ {
-				fmt.Printf("g.block.get(%d, %d)=%d > 0 && (%d + %d) < 1\n", i, j, g.block.get(i, j), g.blockX, i)
-				if (g.block.get(i, j) > 0 && (g.blockX + i) < 1) {
+				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+				couldClashLeftBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+				if (couldClashLeftSide || couldClashLeftBlock) {
+					g.blockX += 1
 					return nil;
 				}
 			}
 		}		
-		g.blockX -= 1
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+		g.blockX += 1
 		for i := 0; i < g.block.width; i++ {
 			for j := 0; j < g.block.height; j++ {
-				fmt.Printf("g.block.get(%d, %d)=%d > 0 && (%d + %d + 1) > %d\n", i, j, g.block.get(i, j), g.blockX, i, g.field.width)
-				if (g.block.get(i, j) > 0 && (g.blockX + i + 2) > g.field.width ) {
+				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+				couldClashRightBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+				if (couldClashRightSide || couldClashRightBlock) {
+					g.blockX -= 1
 					return nil;
 				}
 			}
 		}		
-		g.blockX += 1
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		g.block = g.block.RotateRight()
+		for i := 0; i < g.block.width; i++ {
+			for j := 0; j < g.block.height; j++ {
+				fmt.Printf("g.block.get(%d, %d) = %d >0 && g.filed.get(%d, %d) = %d > 0\n", i, j, g.block.get(i,j), g.blockX + i, g.blockY + j, g.field.get(g.blockX + i, g.blockY + j));
+				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+				fmt.Printf("can rotate %t\n", (couldClashRightSide || couldClashBlock || couldClashLeftSide))			
+				if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
+					fmt.Println("Rotation failed")
+					g.block.RotateLeft()
+					return nil;
+				}
+			}
+		}		
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		g.block = g.block.RotateLeft()
+		g.block = g.block.RotateRight()
+
+		for i := 0; i < g.block.width; i++ {
+			for j := 0; j < g.block.height; j++ {
+				fmt.Printf("g.block.get(%d, %d) = %d >0 && g.filed.get(%d, %d) = %d > 0\n", i, j, g.block.get(i,j), g.blockX + i, g.blockY + j, g.field.get(g.blockX + i, g.blockY + j));
+				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+				fmt.Printf("g.block.get(%d, %d) = %d > 0 && (%d + %d + 1) > %d\n", i, j, g.block.get(i, j), g.blockX, i, g.field.width);
+				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+				fmt.Printf("g.block.get(%d, %d) = %d > 0 && (%d + %d) < 0\n", i, j, g.block.get(i, j), g.blockX, i)
+				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+
+				fmt.Printf("couldClashRightSide = %t, couldClashBlock = %t, couldClashLeftSide = %t\n", couldClashRightSide, couldClashBlock, couldClashLeftSide);					
+
+				if (couldClashRightSide || couldClashBlock || couldClashLeftSide) {
+					fmt.Println("Rotation failed")
+					g.block.RotateLeft()
+					return nil;
+				}
+			}
+		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.Drop()
@@ -236,7 +278,7 @@ func main() {
 	ebiten.RunGame(&Game{
 		field: &Matrix{
 			cells:make([]int, 10*20),
-			width:10,
+			width:4,
 			height:20,			
 		},
 		cell_size: 10,	
