@@ -65,6 +65,7 @@ type Game struct {
 	blockY int
 	cell_size int
 	freq int
+	over bool
 }
 
 func (g *Game) Drop() {
@@ -95,15 +96,17 @@ var blocks = []Matrix{
 func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
-	if g.block == nil {
+	if g.over {
+		
+	} else if g.block == nil {
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
  		g.blockY = g.field.height - g.block.height - 1 
 		for i:=0; i<g.block.width; i++ {
 			for j:=0; j<g.block.height; j++ {
 				if (g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0) {
-					fmt.Println("GAME OVER")
-					g.freq = 1000000
+					g.over = true
+					return							
 				}			
 			}
 		}	 
@@ -129,6 +132,10 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		}		
 	}
 
+	if (g.over) {
+		return
+	}
+
 	// Draw block	
 	for i:=0; i<g.block.width; i++ {
 		for j:=0; j<g.block.height; j++ {
@@ -146,6 +153,8 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	}
 
 }
+
+
 
 func (g *Game) BlockLanded() bool {
 	for i:=0; i<g.block.width; i++ {
@@ -295,10 +304,11 @@ func main() {
 	ebiten.RunGame(&Game{
 		field: &Matrix{
 			cells:make([]int, 10*20),
-			width:4,
+			width:10,
 			height:20,			
-		},
+		}, 
 		cell_size: 10,	
-		freq:50,
+		freq:10,
+		over:false,
 	}) 
 }
