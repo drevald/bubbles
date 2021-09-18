@@ -102,6 +102,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		for i:=0; i<g.block.width; i++ {
 			for j:=0; j<g.block.height; j++ {
 				if (g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0) {
+					fmt.Println("GAME OVER")
 					g.freq = 1000000
 				}			
 			}
