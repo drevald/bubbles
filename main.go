@@ -40,8 +40,21 @@ func (m *Matrix) RotateRight() *Matrix {
 }
 
 func (m *Matrix) RotateLeft() *Matrix {
+	m.debug()
 	fmt.Println("Rotating left")
-	return m.RotateRight().RotateRight().RotateRight()
+	m1 := m.RotateRight().RotateRight().RotateRight()
+	m.debug()
+	return m1
+}
+
+func (m *Matrix) debug() {
+	for j := 0; j < m.height; j++ {
+		for i:=0; i < m.width; i++ {
+			fmt.Print(m.get(i,j));
+			fmt.Print("\t");
+		}
+		fmt.Print("\n");
+	}
 }
 
 type Game struct {
@@ -185,6 +198,9 @@ func (g *Game) RemoveLines() {
 }
 
 func (g *Game) Update () error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
+		g.block.debug()
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
 		g.blockX -= 1
 		for i := 0; i < g.block.width; i++ {
@@ -222,7 +238,7 @@ func (g *Game) Update () error {
 				fmt.Printf("can rotate %t\n", (couldClashRightSide || couldClashBlock || couldClashLeftSide))			
 				if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
 					fmt.Println("Rotation failed")
-					g.block.RotateLeft()
+					g.block = g.block.RotateLeft()
 					return nil;
 				}
 			}
@@ -244,7 +260,7 @@ func (g *Game) Update () error {
 
 				if (couldClashRightSide || couldClashBlock || couldClashLeftSide) {
 					fmt.Println("Rotation failed")
-					g.block.RotateLeft()
+					g.block = g.block.RotateLeft()
 					return nil;
 				}
 			}
