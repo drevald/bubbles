@@ -1,4 +1,4 @@
-package main
+package bubbles
 
 import (
 	"fmt"
@@ -153,8 +153,6 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	}
 
 }
-
-
 
 func (g *Game) BlockLanded() bool {
 	for i:=0; i<g.block.width; i++ {
