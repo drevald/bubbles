@@ -3,9 +3,14 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"image/png"
+	_ "image/png"
 	"math/rand"
+	"os"
+	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	_ "image/png"	
 )
 
 type Matrix struct {
@@ -61,6 +66,30 @@ type Game struct {
 	freq int
 	over bool
 	bubbleImage *ebiten.Image
+}
+
+func NewGame() *Game {
+
+	data, err := os.ReadFile("bubble.png")
+	if err != nil {
+		fmt.Println(err)
+	}
+	imageReader := bytes.NewReader(data)
+	image, err := png.Decode(imageReader)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return &Game{
+		field: &Matrix{
+			cells:make([]int, 10*20),
+			width:10,
+			height:20,			
+		}, 
+		cell_size: 10,	
+		freq:10,
+		over:false,
+		bubbleImage:ebiten.NewImageFromImage(image),
+	}
 }
 
 func (g *Game) Drop() {
@@ -277,4 +306,32 @@ func (g *Game) Update () error {
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {	
 	return g.field.width * g.cell_size, g.field.height * g.cell_size
+}
+
+func main() {
+		
+	fmt.Println("Start Game")
+
+	data, err := os.ReadFile("bubble.png")
+	if err != nil {
+		fmt.Println(err)
+	}
+	imageReader := bytes.NewReader(data)
+	image, err := png.Decode(imageReader)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	ebiten.RunGame(&Game{
+		field: &Matrix{
+			cells:make([]int, 10*20),
+			width:10,
+			height:20,			
+		}, 
+		cell_size: 10,	
+		freq:10,
+		over:false,
+		bubbleImage:ebiten.NewImageFromImage(image),
+	}) 
+
 }
