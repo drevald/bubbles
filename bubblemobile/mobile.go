@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-  mobile.SetGame(&game.Game{})
+	mobile.SetGame(&game.Game{})
 }
 
 func Dummy() {
