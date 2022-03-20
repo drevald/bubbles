@@ -8,5 +8,6 @@ import (
 
 func main() {
 	fmt.Println("Start Game")
-	ebiten.RunGame(game.NewGame())
+	//ebiten.RunGame(game.NewGame())
+	ebiten.RunGame(&game.Test{})
 }
