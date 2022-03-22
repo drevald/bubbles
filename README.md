@@ -6,4 +6,4 @@ Structure
 
 To generate android package run:
 cd bubblemobile
-ebitenmobile bind -target android -javapkg bubbles.game -o bubbles.aar .
+bubblemobile denis$ ebitenmobile bind -target android -javapkg com.flumine.bubbles -o bubbles.aar .

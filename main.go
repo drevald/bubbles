@@ -4,10 +4,12 @@ import (
 	"github.com/drevald/bubbles/game"
 	"github.com/hajimehoshi/ebiten/v2"
 	"fmt"
+	_ "image/png"	
 )
 
-func main() {
+func main() {		
 	fmt.Println("Start Game")
-	//ebiten.RunGame(game.NewGame())
-	ebiten.RunGame(&game.Test{})
+	g := &game.Game{}
+	g.Init()	
+	ebiten.RunGame(g) 
 }
