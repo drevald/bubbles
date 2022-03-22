@@ -296,11 +296,9 @@ func (g *Game) Update () error {
 		g.block = g.block.RotateRight()
 		for i := 0; i < g.block.width; i++ {
 			for j := 0; j < g.block.height; j++ {
-				fmt.Printf("g.block.get(%d, %d) = %d >0 && g.filed.get(%d, %d) = %d > 0\n", i, j, g.block.get(i,j), g.blockX + i, g.blockY + j, g.field.get(g.blockX + i, g.blockY + j));
 				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
 				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
 				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-				fmt.Printf("can rotate %t\n", (couldClashRightSide || couldClashBlock || couldClashLeftSide))			
 				if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
 					fmt.Println("Rotation failed")
 					g.block = g.block.RotateLeft()
@@ -314,15 +312,9 @@ func (g *Game) Update () error {
 
 		for i := 0; i < g.block.width; i++ {
 			for j := 0; j < g.block.height; j++ {
-				fmt.Printf("g.block.get(%d, %d) = %d >0 && g.filed.get(%d, %d) = %d > 0\n", i, j, g.block.get(i,j), g.blockX + i, g.blockY + j, g.field.get(g.blockX + i, g.blockY + j));
 				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-				fmt.Printf("g.block.get(%d, %d) = %d > 0 && (%d + %d + 1) > %d\n", i, j, g.block.get(i, j), g.blockX, i, g.field.width);
 				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-				fmt.Printf("g.block.get(%d, %d) = %d > 0 && (%d + %d) < 0\n", i, j, g.block.get(i, j), g.blockX, i)
 				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-
-				fmt.Printf("couldClashRightSide = %t, couldClashBlock = %t, couldClashLeftSide = %t\n", couldClashRightSide, couldClashBlock, couldClashLeftSide);					
-
 				if (couldClashRightSide || couldClashBlock || couldClashLeftSide) {
 					fmt.Println("Rotation failed")
 					g.block = g.block.RotateLeft()
