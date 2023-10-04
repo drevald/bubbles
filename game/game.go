@@ -395,24 +395,28 @@ func (g *Game) Update () error {
 		}		
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		g.block = g.block.RotateRight()
-		for i := 0; i < g.block.width; i++ {
-			for j := 0; j < g.block.height; j++ {
-				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-				if (couldClashRightSide || couldClashBlock || couldClashLeftSide) {
-					fmt.Println("Rotation failed")
-					g.block = g.block.RotateLeft()
-					return nil;
-				}
-			}
-		}
+		Rotate(g)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.Drop()
 	}	
 	return nil
+}
+
+func Rotate(g *Game) {
+	g.block = g.block.RotateRight()
+	for i := 0; i < g.block.width; i++ {
+		for j := 0; j < g.block.height; j++ {
+			couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+			couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+			couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+			if (couldClashRightSide || couldClashBlock || couldClashLeftSide) {
+				fmt.Println("Rotation failed")
+				g.block = g.block.RotateLeft()
+				break	
+			}
+		}
+	}
 }
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {	
