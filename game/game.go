@@ -396,7 +396,6 @@ func (g *Game) Update () error {
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 		g.block = g.block.RotateRight()
-
 		for i := 0; i < g.block.width; i++ {
 			for j := 0; j < g.block.height; j++ {
 				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
