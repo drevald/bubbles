@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	_ "image/png"	
 	"embed"
 
@@ -90,6 +91,7 @@ type Game struct {
 	over bool
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
+	pressed bool
 }
 
 func (g *Game) Init() {
@@ -121,7 +123,14 @@ func (g *Game) Init() {
 		Size:    18,
 		DPI:     dpi,// Use quantization to save glyph cache images.
 	})
+
+	normFont, _ = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    12,
+		DPI:     dpi,// Use quantization to save glyph cache images.
+	}) 
 	
+	g.pressed = false
+
 }
 
 func (g *Game) Drop() {
@@ -130,6 +139,7 @@ func (g *Game) Drop() {
 
 var colors []color.RGBA	= []color.RGBA{	
 	{111, 119, 89, 255},
+	{75, 83, 32, 255},
 	{5, 5, 5, 255},
 	{255, 0, 0, 255},
 	{0, 255, 0, 255},
@@ -152,6 +162,7 @@ var blocks = []Matrix{
 
 var (
 	mplusBigFont    font.Face
+	normFont		font.Face
 )
 
 func (g *Game) Draw (screen *ebiten.Image) {
@@ -219,13 +230,16 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	}
 
-	// weedOptions := &ebiten.DrawImageOptions {}
-	// weedOptions.GeoM.Translate(100, 100)
-	// screen.DrawImage(g.weedImage, weedOptions)	
-	// screen.DrawImage(g.bubbleImage, weedOptions)	
-
 	if (g.over) {
-		text.Draw(screen, "GAME \n OVER", mplusBigFont, 20, 60, color.White)
+		text.Draw(screen, "GAME\nOVER", mplusBigFont, 20, 60, colors[1])
+		if (g.pressed) {
+			vector.DrawFilledRect(screen, 22, 102, 60, 20, colors[1], false)
+			text.Draw(screen, "RESTART", normFont, 27, 117, color.White)	
+		} else {
+			vector.DrawFilledRect(screen, 22, 102, 60, 20, color.White, false)
+			vector.DrawFilledRect(screen, 20, 100, 60, 20, colors[1], false)
+			text.Draw(screen, "RESTART", normFont, 25, 115, color.White)	
+		}
 	}
 
 }
@@ -284,6 +298,15 @@ func (g *Game) RemoveLines() {
 }
 
 func (g *Game) Update () error {
+
+	if (ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)) {
+		x, y := ebiten.CursorPosition()
+		if (x > 20 && x < 80 && y > 100 && y < 120) {
+			g.pressed = true
+		}
+	} else {
+		g.pressed = false		
+	}
 
 	ids := inpututil.AppendJustPressedTouchIDs(nil)
 	if ids != nil {
