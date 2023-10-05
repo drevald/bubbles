@@ -12,6 +12,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "image/png"	
 	"embed"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/text"
+
 )
 
 const (
@@ -85,48 +92,15 @@ type Game struct {
 	weedImage *ebiten.Image
 }
 
-// func NewGame() *Game {
-
-// 	data, err := os.ReadFile("bubble.png")
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	imageReader := bytes.NewReader(data)
-// 	image, err := png.Decode(imageReader)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	return &Game{
-// 		field: &Matrix{
-// 			cells:make([]int, 10*20),
-// 			width:10,
-// 			height:20,			
-// 		}, 
-// 		cell_size: 10,	
-// 		freq:10,
-// 		over:false,
-// 		bubbleImage:ebiten.NewImageFromImage(image),
-// 	}
-// }
-
 func (g *Game) Init() {
 
 	data, _ := f.ReadFile("bubble.png")
 	imageReader := bytes.NewReader(data)
 	image, _ := png.Decode(imageReader)
 
-	data, err := f.ReadFile("weed.png")
-	if err != nil {
-		fmt.Println(err)
-	}
+	data, _ = f.ReadFile("weed.png")
 	imageReader1 := bytes.NewReader(data)
-	img, err := png.Decode(imageReader1)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if image != nil {
-		fmt.Println("Image ok")
-	}
+	bubbleImage, _ := png.Decode(imageReader1)
 
 	g.field = &Matrix{
 		cells:make([]int, 10*20),
@@ -138,7 +112,15 @@ func (g *Game) Init() {
 	g.freq = 10
 	g.over = false
 	g.bubbleImage = ebiten.NewImageFromImage(image)
-	g.weedImage = ebiten.NewImageFromImage(img)
+	g.weedImage = ebiten.NewImageFromImage(bubbleImage)
+
+	tt, _ := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	const dpi = 72
+
+	mplusBigFont, _ = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    18,
+		DPI:     dpi,// Use quantization to save glyph cache images.
+	})
 	
 }
 
@@ -147,6 +129,7 @@ func (g *Game) Drop() {
 }
 
 var colors []color.RGBA	= []color.RGBA{	
+	{111, 119, 89, 255},
 	{5, 5, 5, 255},
 	{255, 0, 0, 255},
 	{0, 255, 0, 255},
@@ -167,12 +150,15 @@ var blocks = []Matrix{
 	{cells:[]int{7, 7, 7, 7}, width: 1, height: 4},
 }
 
+var (
+	mplusBigFont    font.Face
+)
+
 func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
-	if g.over {
-		
-	} else if g.block == nil {
+
+	if g.block == nil && !g.over {
 
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
@@ -185,7 +171,8 @@ func (g *Game) Draw (screen *ebiten.Image) {
 				}			
 			}
 		}	 
-	} else if (g.counter % g.freq == 0) {
+
+	} else if (g.counter % g.freq == 0 && !g.over) {
 		g.blockY -= 1
 	}
 	
@@ -197,10 +184,9 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	sx, sy := frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
 	options.GeoM.Translate(20, 0)
-	i += 5
+	i = (i + 5) % 15
 	sx, sy = frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
-
 
 //	Draw glass
 	for i:=0; i < g.field.width; i++ {
@@ -213,33 +199,38 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		}		
 	}
 
-	if (g.over) {
-		return
-	}
-
 	// Draw block	
-	for i:=0; i<g.block.width; i++ {
-		for j:=0; j<g.block.height; j++ {
-			options.GeoM.Reset()
-			options.GeoM.Translate(float64((g.blockX + i)*g.cell_size), float64((g.blockY + j)*g.cell_size))
-			if (g.block.get(i, j) > 0) {
-				screen.DrawImage(g.bubbleImage, options)
-			}			
+	if (!g.over) {
+
+		for i:=0; i<g.block.width; i++ {
+			for j:=0; j<g.block.height; j++ {
+				options.GeoM.Reset()
+				options.GeoM.Translate(float64((g.blockX + i)*g.cell_size), float64((g.blockY + j)*g.cell_size))
+				if (g.block.get(i, j) > 0) {
+					screen.DrawImage(g.bubbleImage, options)
+				}			
+			}
+		}	
+
+		if (g.BlockLanded()) {
+			g.MergeBlock()
+			g.RemoveLines()
 		}
+
 	}
 
-	if (g.BlockLanded()) {
-		g.MergeBlock()
-		g.RemoveLines()
+	// weedOptions := &ebiten.DrawImageOptions {}
+	// weedOptions.GeoM.Translate(100, 100)
+	// screen.DrawImage(g.weedImage, weedOptions)	
+	// screen.DrawImage(g.bubbleImage, weedOptions)	
+
+	if (g.over) {
+		text.Draw(screen, "GAME \n OVER", mplusBigFont, 20, 60, color.White)
 	}
-
-
-	weedOptions := &ebiten.DrawImageOptions {}
-	weedOptions.GeoM.Translate(100, 100)
-	screen.DrawImage(g.weedImage, weedOptions)	
-	screen.DrawImage(g.bubbleImage, weedOptions)	
 
 }
+
+////////////////////////////////
 
 func (g *Game) BlockLanded() bool {
 	for i:=0; i<g.block.width; i++ {
@@ -301,101 +292,32 @@ func (g *Game) Update () error {
 			z := inpututil.TouchPressDuration(ids[i])
 			x, y := ebiten.TouchPosition(ids[i])
 			fmt.Printf("Touch id = %d pos (%d, %d) dur %d released %t\n", ids[i], x, y, z, b)
-			if (x < 50 && y > 50) {
-
-				g.blockX -= 1
-				for i := 0; i < g.block.width; i++ {
-					for j := 0; j < g.block.height; j++ {
-						couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-						couldClashLeftBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-						if (couldClashLeftSide || couldClashLeftBlock) {
-							g.blockX += 1
-							return nil;
-						}
-					}
-				}
-
+			if (g.Intersects(g.block, x, y)) {
+				g.Rotate()
+			} else if (x < 50 && y > 50) {
+				g.MoveLeft()
 			} else if (x > 50 && y > 50) {
-
-				g.blockX += 1
-				for i := 0; i < g.block.width; i++ {
-					for j := 0; j < g.block.height; j++ {
-						couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-						couldClashRightBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-						if (couldClashRightSide || couldClashRightBlock) {
-							g.blockX -= 1
-							return nil;
-						}
-					}
-				}	
-
+				g.MoveRight()				
 			} else if (y < 50) {
-
-				g.block = g.block.RotateRight()
-				for i := 0; i < g.block.width; i++ {
-					for j := 0; j < g.block.height; j++ {
-						couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-						couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-						couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-						if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
-							fmt.Println("Rotation failed")
-							g.block = g.block.RotateLeft()
-							return nil;
-						}
-					}
-				}
-
+				g.Drop()
 			}
 		}
 	}
-
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
 		g.block.debug()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		g.blockX -= 1
-		for i := 0; i < g.block.width; i++ {
-			for j := 0; j < g.block.height; j++ {
-				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-				couldClashLeftBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-				if (couldClashLeftSide || couldClashLeftBlock) {
-					g.blockX += 1
-					return nil;
-				}
-			}
-		}		
+		g.MoveLeft();		
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		g.blockX += 1
-		for i := 0; i < g.block.width; i++ {
-			for j := 0; j < g.block.height; j++ {
-				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-				couldClashRightBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-				if (couldClashRightSide || couldClashRightBlock) {
-					g.blockX -= 1
-					return nil;
-				}
-			}
-		}		
+		g.MoveRight()
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		g.block = g.block.RotateRight()
-		for i := 0; i < g.block.width; i++ {
-			for j := 0; j < g.block.height; j++ {
-				couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
-				couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
-				couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
-				if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
-					fmt.Println("Rotation failed")
-					g.block = g.block.RotateLeft()
-					return nil;
-				}
-			}
-		}		
+		g.UnRotate()		
 	} 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		Rotate(g)
+		g.Rotate()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.Drop()
@@ -403,7 +325,50 @@ func (g *Game) Update () error {
 	return nil
 }
 
-func Rotate(g *Game) {
+func (g *Game) MoveLeft() {
+	g.blockX -= 1
+	for i := 0; i < g.block.width; i++ {
+		for j := 0; j < g.block.height; j++ {
+			couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+			couldClashLeftBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+			if (couldClashLeftSide || couldClashLeftBlock) {
+				g.blockX += 1
+				break
+			}
+		}
+	}
+}
+
+func (g *Game) MoveRight() {
+	g.blockX += 1
+	for i := 0; i < g.block.width; i++ {
+		for j := 0; j < g.block.height; j++ {
+			couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+			couldClashRightBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+			if (couldClashRightSide || couldClashRightBlock) {
+				g.blockX -= 1
+				break
+			}
+		}
+	}	
+}
+
+func (g *Game) Intersects (m *Matrix, x int, y int) bool {
+	for i := 0; i < g.block.width; i++ {
+		for j := 0; j < g.block.height; j++ {	
+			if x > (g.blockX + i) * g.cell_size &&
+			 x < (g.blockX + i + 1) * g.cell_size && 
+			 y > (g.blockY + j) * g.cell_size && 
+			 y < (g.blockY + j + 1) * g.cell_size && 
+			 g.block.get(i, j) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g *Game) Rotate() {
 	g.block = g.block.RotateRight()
 	for i := 0; i < g.block.width; i++ {
 		for j := 0; j < g.block.height; j++ {
@@ -414,6 +379,22 @@ func Rotate(g *Game) {
 				fmt.Println("Rotation failed")
 				g.block = g.block.RotateLeft()
 				break	
+			}
+		}
+	}
+}
+
+func (g *Game) UnRotate() {
+	g.block = g.block.RotateRight()
+	for i := 0; i < g.block.width; i++ {
+		for j := 0; j < g.block.height; j++ {
+			couldClashBlock := g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0;
+			couldClashRightSide := g.block.get(i, j) > 0 && (g.blockX + i + 1) > g.field.width
+			couldClashLeftSide := g.block.get(i, j) > 0 && (g.blockX + i) < 0
+			if (!couldClashRightSide || !couldClashBlock || !couldClashLeftSide) {
+				fmt.Println("Rotation failed")
+				g.block = g.block.RotateLeft()
+				break
 			}
 		}
 	}
