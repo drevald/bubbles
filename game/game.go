@@ -304,8 +304,16 @@ func (g *Game) Update () error {
 		if (x > 20 && x < 80 && y > 100 && y < 120) {
 			g.pressed = true
 		}
+	} else if g.pressed {
+		g.pressed = false
+		g.over = false
+		g.field = &Matrix{
+			cells:make([]int, 10*20),
+			width:10,
+			height:20,			
+		 }		
 	} else {
-		g.pressed = false		
+		g.pressed = false
 	}
 
 	ids := inpututil.AppendJustPressedTouchIDs(nil)
