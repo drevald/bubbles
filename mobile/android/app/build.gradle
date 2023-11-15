@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.hajimehoshi.goinovation"
+        applicationId "com.flumine.bubbles"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 7
@@ -23,5 +23,5 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
     implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation project(':inovation')
+    implementation project(':bubbles')
 }

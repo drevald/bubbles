@@ -3,6 +3,7 @@ module github.com/hajimehoshi/go-inovation
 go 1.18
 
 require (
+	github.com/drevald/bubbles v0.0.0-20231114203404-6bc54e57c4a3
 	github.com/hajimehoshi/bitmapfont/v2 v2.2.3
 	github.com/hajimehoshi/ebiten/v2 v2.7.0-alpha.2
 	github.com/hajimehoshi/go-steamworks v0.0.0-20230813163040-103842ca9750
