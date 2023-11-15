@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import go.Seq;
 
-import com.hajimehoshi.goinovation.mobile.EbitenView;
+import com.flumine.bubbles.mobile.EbitenView;
 
 public class MainActivity extends AppCompatActivity {
 

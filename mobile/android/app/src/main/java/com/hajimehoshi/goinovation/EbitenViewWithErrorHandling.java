@@ -3,7 +3,7 @@ package com.hajimehoshi.goinovation;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.hajimehoshi.goinovation.mobile.EbitenView;
+import com.flumine.bubbles.mobile.EbitenView;
 
 class EbitenViewWithErrorHandling extends EbitenView {
     public EbitenViewWithErrorHandling(Context context) {
