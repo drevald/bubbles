@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  goinovation
+//  bubbles
 //
 //  Created by Hajime Hoshi on 6/16/16.
 //  Copyright © 2016 Hajime Hoshi. All rights reserved.

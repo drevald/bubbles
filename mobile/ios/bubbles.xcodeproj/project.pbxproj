@@ -22,12 +22,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8C050D3E1D16B7E500F865C4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = goinovation/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8C050D3E1D16B7E500F865C4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = bubbles/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C319FA2232D60A80051792B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		8C341D9922E313CD00B5C749 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		8C341D9D22E3140400B5C749 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		8C4C3320271B334200CB6E83 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		8C7185B91D11C56C00F98056 /* goinovation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = goinovation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C7185B91D11C56C00F98056 /* bubbles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bubbles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C7185BD1D11C56C00F98056 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8C7185BF1D11C56C00F98056 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8C7185C01D11C56C00F98056 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -60,7 +60,7 @@
 		8C7185B01D11C56C00F98056 = {
 			isa = PBXGroup;
 			children = (
-				8C7185BB1D11C56C00F98056 /* goinovation */,
+				8C7185BB1D11C56C00F98056 /* bubbles */,
 				8C7185BA1D11C56C00F98056 /* Products */,
 				8CCAFF0922E3133E00FAEDC1 /* Frameworks */,
 			);
@@ -69,12 +69,12 @@
 		8C7185BA1D11C56C00F98056 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8C7185B91D11C56C00F98056 /* goinovation.app */,
+				8C7185B91D11C56C00F98056 /* bubbles.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8C7185BB1D11C56C00F98056 /* goinovation */ = {
+		8C7185BB1D11C56C00F98056 /* bubbles */ = {
 			isa = PBXGroup;
 			children = (
 				8C7185BF1D11C56C00F98056 /* AppDelegate.h */,
@@ -87,7 +87,7 @@
 				8C7185CD1D11C56C00F98056 /* Info.plist */,
 				8C7185BC1D11C56C00F98056 /* Supporting Files */,
 			);
-			path = goinovation;
+			path = bubbles;
 			sourceTree = "<group>";
 		};
 		8C7185BC1D11C56C00F98056 /* Supporting Files */ = {
@@ -114,9 +114,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8C7185B81D11C56C00F98056 /* goinovation */ = {
+		8C7185B81D11C56C00F98056 /* bubbles */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8C7185D01D11C56C00F98056 /* Build configuration list for PBXNativeTarget "goinovation" */;
+			buildConfigurationList = 8C7185D01D11C56C00F98056 /* Build configuration list for PBXNativeTarget "bubbles" */;
 			buildPhases = (
 				8C7185B51D11C56C00F98056 /* Sources */,
 				8C7185B61D11C56C00F98056 /* Frameworks */,
@@ -126,9 +126,9 @@
 			);
 			dependencies = (
 			);
-			name = goinovation;
-			productName = goinovation;
-			productReference = 8C7185B91D11C56C00F98056 /* goinovation.app */;
+			name = bubbles;
+			productName = bubbles;
+			productReference = 8C7185B91D11C56C00F98056 /* bubbles.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -150,7 +150,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8C7185B41D11C56C00F98056 /* Build configuration list for PBXProject "goinovation" */;
+			buildConfigurationList = 8C7185B41D11C56C00F98056 /* Build configuration list for PBXProject "bubbles" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -164,7 +164,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8C7185B81D11C56C00F98056 /* goinovation */,
+				8C7185B81D11C56C00F98056 /* bubbles */,
 			);
 		};
 /* End PBXProject section */
@@ -341,13 +341,13 @@
 					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = goinovation/Info.plist;
+				INFOPLIST_FILE = bubbles/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hajimehoshi.goinovation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hajimehoshi.bubbles;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -367,13 +367,13 @@
 					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = goinovation/Info.plist;
+				INFOPLIST_FILE = bubbles/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hajimehoshi.goinovation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hajimehoshi.bubbles;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "iOS Dev";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -383,7 +383,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8C7185B41D11C56C00F98056 /* Build configuration list for PBXProject "goinovation" */ = {
+		8C7185B41D11C56C00F98056 /* Build configuration list for PBXProject "bubbles" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8C7185CE1D11C56C00F98056 /* Debug */,
@@ -392,7 +392,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8C7185D01D11C56C00F98056 /* Build configuration list for PBXNativeTarget "goinovation" */ = {
+		8C7185D01D11C56C00F98056 /* Build configuration list for PBXNativeTarget "bubbles" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8C7185D11D11C56C00F98056 /* Debug */,

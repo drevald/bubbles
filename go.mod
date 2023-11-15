@@ -1,4 +1,4 @@
-module github.com/hajimehoshi/go-inovation
+module github.com/drevald/bubbles
 
 go 1.18
 

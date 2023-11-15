@@ -1,6 +1,6 @@
 //
 //  MobileEbitenViewWithErrorHandling.h
-//  goinovation
+//  bubbles
 //
 //  Created by Hajime Hoshi on 2019/08/18.
 //  Copyright © 2019 Hajime Hoshi. All rights reserved.
