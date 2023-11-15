@@ -1,4 +1,4 @@
-package com.hajimehoshi.goinovation;
+package com.flumine.bubbles;
 
 import android.content.Context;
 import android.util.AttributeSet;

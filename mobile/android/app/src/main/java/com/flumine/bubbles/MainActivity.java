@@ -1,4 +1,4 @@
-package com.hajimehoshi.goinovation;
+package com.flumine.bubbles;
 
 import androidx.appcompat.app.AppCompatActivity;
 

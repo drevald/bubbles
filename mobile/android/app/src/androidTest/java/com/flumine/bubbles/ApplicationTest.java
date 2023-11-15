@@ -1,4 +1,4 @@
-package com.hajimehoshi.goinovation;
+package com.flumine.bubbles;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

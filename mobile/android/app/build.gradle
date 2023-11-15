@@ -2,6 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 33
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     defaultConfig {
         applicationId "com.flumine.bubbles"
         minSdkVersion 26
@@ -19,6 +23,7 @@ android {
     }
     ndkVersion "25.1.8937393"
 }
+
 //25.1.8937393
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
