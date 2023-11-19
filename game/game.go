@@ -23,9 +23,7 @@ import (
 )
 
 const (
-	screenWidth  = 320
-	screenHeight = 340
-
+	
 	frameOX     = 0
 	frameOY     = 0
 	frameWidth  = 84
@@ -92,29 +90,33 @@ type Game struct {
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
 	pressed bool
+	screenWidth int
+	screenHeight int
+	zoom float64
 }
 
 func (g *Game) Init() {
 
 	data, _ := f.ReadFile("bubble.png")
-	imageReader := bytes.NewReader(data)
-	image, _ := png.Decode(imageReader)
+	bubbleImageReader := bytes.NewReader(data)
+	bubbleImageDecoded, _ := png.Decode(bubbleImageReader)
 
 	data, _ = f.ReadFile("weed.png")
-	imageReader1 := bytes.NewReader(data)
-	bubbleImage, _ := png.Decode(imageReader1)
+	weedImageReader := bytes.NewReader(data)
+	weedImageDecoded, _ := png.Decode(weedImageReader)
 
 	g.field = &Matrix{
 		cells:make([]int, 10*20),
 		width:10,
 		height:20,			
 	 }
-		
+	
+	g.zoom = 1.0
 	g.cell_size = 10
 	g.freq = 10
 	g.over = false
-	g.bubbleImage = ebiten.NewImageFromImage(image)
-	g.weedImage = ebiten.NewImageFromImage(bubbleImage)
+	g.bubbleImage = ebiten.NewImageFromImage(bubbleImageDecoded)
+	g.weedImage = ebiten.NewImageFromImage(weedImageDecoded)
 
 	tt, _ := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	const dpi = 72
@@ -167,6 +169,8 @@ var (
 
 func (g *Game) Draw (screen *ebiten.Image) {
 
+	//fmt.Println("Width is " + screen.Bounds().String())
+
 	g.counter++
 
 	if g.block == nil && !g.over {
@@ -191,6 +195,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	screen.Fill(colors[0])
 
 	options.GeoM.Translate(0, 60)
+	options.GeoM.Scale(g.zoom, g.zoom)
 	i := (g.counter / 10) % 15
 	sx, sy := frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
@@ -203,7 +208,8 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	for i:=0; i < g.field.width; i++ {
 		for j := 0; j < g.field.height; j++ {
 			options.GeoM.Reset()
-			options.GeoM.Translate(float64(i*g.cell_size), float64(j*g.cell_size))
+			options.GeoM.Scale(g.zoom, g.zoom)
+			options.GeoM.Translate(float64(i) * float64(g.cell_size) * g.zoom, float64(j) * float64(g.cell_size) * g.zoom)
 			if (g.field.get(i,j) > 0) {
 				screen.DrawImage(g.bubbleImage, options)
 			} 			
@@ -216,7 +222,8 @@ func (g *Game) Draw (screen *ebiten.Image) {
 		for i:=0; i<g.block.width; i++ {
 			for j:=0; j<g.block.height; j++ {
 				options.GeoM.Reset()
-				options.GeoM.Translate(float64((g.blockX + i)*g.cell_size), float64((g.blockY + j)*g.cell_size))
+				options.GeoM.Scale(g.zoom, g.zoom)
+				options.GeoM.Translate(float64(g.blockX + i) * float64(g.cell_size) * g.zoom, float64(g.blockY + j) * float64(g.cell_size) * g.zoom)
 				if (g.block.get(i, j) > 0) {
 					screen.DrawImage(g.bubbleImage, options)
 				}			
@@ -298,6 +305,8 @@ func (g *Game) RemoveLines() {
 }
 
 func (g *Game) Update () error {
+
+	//fmt.Println("Update")
 
 	if (ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)) {
 		x, y := ebiten.CursorPosition()
@@ -432,5 +441,13 @@ func (g *Game) UnRotate() {
 }
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {	
-	return g.field.width * g.cell_size, g.field.height * g.cell_size
+	//return g.field.width * g.cell_size, g.field.height * g.cell_size
+	//fmt.Println("Layout")
+	if (g.screenWidth == 0 || g.screenHeight == 0) {
+		g.screenHeight = outsideHeight
+		g.screenWidth = outsideWidth		
+		g.zoom = float64(outsideHeight / 200)
+		fmt.Printf("zoom is %f\n", float64(outsideHeight / 200))
+	}
+	return outsideWidth, outsideHeight
 }

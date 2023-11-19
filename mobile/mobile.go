@@ -1,13 +1,15 @@
 package mobile
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/mobile"
 	"github.com/drevald/bubbles/game"
 )
 
 func init() {
+	ebiten.SetWindowSize(400, 400)
 	game := &game.Game{}
-	game.Init()
+	game.Init()	
 	mobile.SetGame(game)
 }
 

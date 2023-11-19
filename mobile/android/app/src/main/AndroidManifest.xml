@@ -11,7 +11,7 @@
         android:screenOrientation="portrait">
         <activity
             android:name="com.flumine.bubbles.MainActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
