@@ -454,13 +454,13 @@ func (g *Game) UnRotate() {
 }
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {	
-	//return g.field.width * g.cell_size, g.field.height * g.cell_size
+	return g.field.width * g.cell_size, g.field.height * g.cell_size
 	//fmt.Println("Layout")
-	if (g.screenWidth == 0 || g.screenHeight == 0) {
-		g.screenHeight = outsideHeight
-		g.screenWidth = outsideWidth		
-		g.zoom = float64(outsideHeight / 200)
-		fmt.Printf("zoom is %f\n", float64(outsideHeight / 200))
-	}
-	return outsideWidth, outsideHeight
+	// if (g.screenWidth == 0 || g.screenHeight == 0) {
+	// 	g.screenHeight = outsideHeight
+	// 	g.screenWidth = outsideWidth		
+	// 	g.zoom = float64(outsideHeight / 200)
+	// 	fmt.Printf("zoom is %f\n", float64(outsideHeight / 200))
+	// }
+	// return outsideWidth, outsideHeight
 }
