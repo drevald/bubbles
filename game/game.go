@@ -333,26 +333,30 @@ func (g *Game) Update () error {
 			z := inpututil.TouchPressDuration(ids[i])
 			x, y := ebiten.TouchPosition(ids[i])
 			fmt.Printf("Touch id = %d pos (%d, %d) dur %d released %t\n", ids[i], x, y, z, b)
-			if (g.Intersects(g.block, x, y)) {
-				g.Rotate()
-			} else if (x < 50 && y > 50) {
-				g.MoveLeft()
-			} else if (x > 50 && y > 50) {
-				g.MoveRight()				
-			} else if (y < 50) {
-				g.Drop()
-			} else if (x > 20 && x < 80 && y > 100 && y < 120) {
-					g.pressed = true
-			} else if g.pressed {
-				g.pressed = false
-				g.over = false
-				g.field = &Matrix{
-					cells:make([]int, 10*20),
-					width:10,
-					height:20,			
-				 }		
+			if (!g.over) {
+				if (g.Intersects(g.block, x, y)) {
+					g.Rotate()
+				} else if (x < 50 && y > 50) {
+					g.MoveLeft()
+				} else if (x > 50 && y > 50) {
+					g.MoveRight()				
+				} else if (y < 50) {
+					g.Drop()
+				} 
 			} else {
-				g.pressed = false
+				if (x > 20 && x < 80 && y > 100 && y < 120) {
+					g.pressed = true
+				} else if g.pressed {
+					g.pressed = false
+					g.over = false
+					g.field = &Matrix{
+						cells:make([]int, 10*20),
+						width:10,
+						height:20,			
+					}		
+				} else {
+					g.pressed = false
+				}
 			}
 		}
 	}
