@@ -326,6 +326,7 @@ func (g *Game) Update () error {
 	}
 
 	ids := inpututil.AppendJustPressedTouchIDs(nil)
+
 	if ids != nil {
 		for i := 0; i < len(ids); i++ {
 			b := inpututil.IsTouchJustReleased(ids[i])
@@ -340,6 +341,18 @@ func (g *Game) Update () error {
 				g.MoveRight()				
 			} else if (y < 50) {
 				g.Drop()
+			} else if (x > 20 && x < 80 && y > 100 && y < 120) {
+					g.pressed = true
+			} else if g.pressed {
+				g.pressed = false
+				g.over = false
+				g.field = &Matrix{
+					cells:make([]int, 10*20),
+					width:10,
+					height:20,			
+				 }		
+			} else {
+				g.pressed = false
 			}
 		}
 	}
