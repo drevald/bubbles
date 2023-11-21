@@ -8,6 +8,5 @@ import (
 func main() {
 	g := &game.Game{}
 	g.Init()	
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeOnlyFullscreenEnabled)
 	ebiten.RunGame(g) 
 }
