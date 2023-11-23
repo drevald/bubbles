@@ -5,11 +5,15 @@
     android:layout_height="match_parent"
     android:background="@color/background_material_dark"
     android:keepScreenOn="true"
-    tools:context="com.flumine.bubbles.MainActivity">
+    tools:context="com.flumine.bubbles.MainActivity"
+    tools:ignore="PrivateResource">
 
     <com.flumine.bubbles.EbitenViewWithErrorHandling
         android:id="@+id/ebitenview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="true" />
+        android:focusable="true"
+        android:screenReaderFocusable="true"
+        android:accessibilityPaneTitle="@string/game_screen"
+        />
 </RelativeLayout>

@@ -344,9 +344,12 @@ func (g *Game) Update () error {
 					g.Drop()
 				} 
 			} else {
+				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
 				if (x > 20 && x < 80 && y > 100 && y < 120) {
+					fmt.Println("A");
 					g.pressed = true
 				} else if g.pressed {
+					fmt.Println("B");
 					g.pressed = false
 					g.over = false
 					g.field = &Matrix{
@@ -355,6 +358,7 @@ func (g *Game) Update () error {
 						height:20,			
 					}		
 				} else {
+					fmt.Println("C");
 					g.pressed = false
 				}
 			}
