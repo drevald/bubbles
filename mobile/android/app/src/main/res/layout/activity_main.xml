@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="true"
-        android:screenReaderFocusable="true"
-        android:accessibilityPaneTitle="@string/game_screen"
+        android:contentDescription="@string/game_screen"
         />
 </RelativeLayout>
