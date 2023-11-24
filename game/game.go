@@ -22,13 +22,13 @@ import (
 
 )
 
-const (
-	
+const (	
 	frameOX     = 0
 	frameOY     = 0
 	frameWidth  = 84
 	frameHeight = 250
 	frameCount  = 15
+	bottomHeight = 1
 )
 
 //go:embed bubble.png
@@ -80,6 +80,8 @@ func (m *Matrix) debug() {
 
 type Game struct {
 	counter int
+	lines int
+	level int
 	field *Matrix
 	block *Matrix
 	blockX int
@@ -90,8 +92,6 @@ type Game struct {
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
 	pressed bool
-	screenWidth int
-	screenHeight int
 	zoom float64
 }
 
@@ -111,6 +111,8 @@ func (g *Game) Init() {
 		height:20,			
 	 }
 	
+	g.lines = 0
+	g.level = 1
 	g.zoom = 1.0
 	g.cell_size = 10
 	g.freq = 10
@@ -131,6 +133,11 @@ func (g *Game) Init() {
 		DPI:     dpi,// Use quantization to save glyph cache images.
 	}) 
 	
+	smallFont, _ = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    9,
+		DPI:     dpi,// Use quantization to save glyph cache images.
+	}) 
+
 	g.pressed = false
 
 }
@@ -165,6 +172,7 @@ var blocks = []Matrix{
 var (
 	mplusBigFont    font.Face
 	normFont		font.Face
+	smallFont		font.Face
 )
 
 func (g *Game) Draw (screen *ebiten.Image) {
@@ -177,7 +185,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 		g.block = &blocks[rand.Intn(7)]
 		g.blockX = 0
- 		g.blockY = g.field.height - g.block.height - 1 
+ 		g.blockY = g.field.height - g.block.height - bottomHeight //to get space for counter
 		for i:=0; i<g.block.width; i++ {
 			for j:=0; j<g.block.height; j++ {
 				if (g.block.get(i, j) > 0 && g.field.get(g.blockX + i, g.blockY + j) > 0) {
@@ -195,14 +203,23 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	screen.Fill(colors[0])
 
 	options.GeoM.Translate(0, 60)
+
 	options.GeoM.Scale(g.zoom, g.zoom)
 	i := (g.counter / 10) % 15
 	sx, sy := frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
-	options.GeoM.Translate(20, 0)
+
+	options.GeoM.Translate(20, float64(g.cell_size * bottomHeight))
 	i = (i + 5) % 15
 	sx, sy = frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
+
+	vector.DrawFilledRect(screen, 0, 
+		float32(g.cell_size * (g.field.height - bottomHeight)), 
+		float32(g.field.width * g.cell_size), 
+		float32(g.cell_size * bottomHeight), colors[1], false)
+	text.Draw(screen, fmt.Sprintf("SCORE: %d  LEVEL: %d", g.lines, g.level), 
+	smallFont, 9, 9 + g.cell_size * (g.field.height - bottomHeight), color.White)
 
 //	Draw glass
 	for i:=0; i < g.field.width; i++ {
@@ -299,6 +316,7 @@ func (g *Game) RemoveLine(j int) {
 func (g *Game) RemoveLines() {
 	for j:=0; j < g.field.height; j++ {
 		for g.LineFull(j) {
+			g.lines++
 			g.RemoveLine(j)
 		}
 	}
@@ -316,6 +334,8 @@ func (g *Game) Update () error {
 	} else if g.pressed {
 		g.pressed = false
 		g.over = false
+		g.lines = 0
+		g.level = 1
 		g.field = &Matrix{
 			cells:make([]int, 10*20),
 			width:10,

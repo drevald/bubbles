@@ -15,7 +15,7 @@
 
 - (void)onErrorOnGameUpdate:(NSError*)err {
     // You can define your own error handling e.g., using Crashlytics.
-    NSLog(@"Inovation Error!: %@", err);
+    NSLog(@"Bubbles Error!: %@", err);
 }
 
 @end
