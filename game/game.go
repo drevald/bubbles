@@ -25,7 +25,7 @@ import (
 const (	
 	frameOX     = 0
 	frameOY     = 0
-	frameWidth  = 84
+	frameWidth  = 85
 	frameHeight = 250
 	frameCount  = 15
 	bottomHeight = 1
@@ -33,6 +33,9 @@ const (
 
 //go:embed bubble.png
 //go:embed weed.png
+//go:embed weed2.png
+//go:embed bg.png
+//go:embed water.png
 var f embed.FS
 
 type Matrix struct {
@@ -91,6 +94,8 @@ type Game struct {
 	over bool
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
+	bgImage *ebiten.Image
+	waterImage *ebiten.Image
 	pressed bool
 	zoom float64
 }
@@ -101,9 +106,19 @@ func (g *Game) Init() {
 	bubbleImageReader := bytes.NewReader(data)
 	bubbleImageDecoded, _ := png.Decode(bubbleImageReader)
 
-	data, _ = f.ReadFile("weed.png")
+	_, _ = f.ReadFile("weed.png")
+
+	data, _ = f.ReadFile("weed2.png")
 	weedImageReader := bytes.NewReader(data)
 	weedImageDecoded, _ := png.Decode(weedImageReader)
+
+	data, _ = f.ReadFile("bg.png")
+	bgImageReader := bytes.NewReader(data)
+	bgImageDecoded, _ := png.Decode(bgImageReader)
+
+	data, _ = f.ReadFile("water.png")
+	waterImageReader := bytes.NewReader(data)
+	waterImageDecoded, _ := png.Decode(waterImageReader)
 
 	g.field = &Matrix{
 		cells:make([]int, 10*20),
@@ -119,6 +134,8 @@ func (g *Game) Init() {
 	g.over = false
 	g.bubbleImage = ebiten.NewImageFromImage(bubbleImageDecoded)
 	g.weedImage = ebiten.NewImageFromImage(weedImageDecoded)
+	g.bgImage = ebiten.NewImageFromImage(bgImageDecoded)
+	g.waterImage = ebiten.NewImageFromImage(waterImageDecoded)
 
 	tt, _ := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	const dpi = 72
@@ -157,6 +174,7 @@ var colors []color.RGBA	= []color.RGBA{
 	{255, 0, 255, 255},
 	{0, 255, 255, 255},
 	{255, 255, 255, 255},			
+	{34, 142, 143, 255},	
 }
 
 var blocks = []Matrix{
@@ -200,7 +218,10 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	}
 	
 	options := &ebiten.DrawImageOptions {}
+	bgOptions := &ebiten.DrawImageOptions {}
 	screen.Fill(colors[0])
+
+	screen.DrawImage(g.bgImage, bgOptions)	
 
 	options.GeoM.Translate(0, 60)
 
@@ -209,29 +230,12 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	sx, sy := frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
 
-	options.GeoM.Translate(20, float64(g.cell_size * bottomHeight))
+	//options.GeoM.Translate(40, float64(g.cell_size * bottomHeight))
+	options.GeoM.Translate(40, 0)
 	i = (i + 5) % 15
 	sx, sy = frameOX+i*frameWidth, frameOY
 	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
 
-	vector.DrawFilledRect(screen, 0, 
-		float32(g.cell_size * (g.field.height - bottomHeight)), 
-		float32(g.field.width * g.cell_size), 
-		float32(g.cell_size * bottomHeight), colors[1], false)
-	text.Draw(screen, fmt.Sprintf("SCORE: %d  LEVEL: %d", g.lines, g.level), 
-	smallFont, 9, 9 + g.cell_size * (g.field.height - bottomHeight), color.White)
-
-//	Draw glass
-	for i:=0; i < g.field.width; i++ {
-		for j := 0; j < g.field.height; j++ {
-			options.GeoM.Reset()
-			options.GeoM.Scale(g.zoom, g.zoom)
-			options.GeoM.Translate(float64(i) * float64(g.cell_size) * g.zoom, float64(j) * float64(g.cell_size) * g.zoom)
-			if (g.field.get(i,j) > 0) {
-				screen.DrawImage(g.bubbleImage, options)
-			} 			
-		}		
-	}
 
 	// Draw block	
 	if (!g.over) {
@@ -252,6 +256,31 @@ func (g *Game) Draw (screen *ebiten.Image) {
 			g.RemoveLines()
 		}
 
+	}
+
+
+	screen.DrawImage(g.waterImage, bgOptions)
+	//screen.DrawImage(g.waterImage, bgOptions)
+
+	vector.DrawFilledRect(screen, 0, 
+		float32(g.cell_size * (g.field.height - bottomHeight)), 
+		float32(g.field.width * g.cell_size), 
+		float32(g.cell_size * bottomHeight), colors[10], false)
+	text.Draw(screen, fmt.Sprintf("SCORE: %d  LEVEL: %d", g.lines, g.level), 
+	smallFont, 9, 9 + g.cell_size * (g.field.height - bottomHeight), color.White)
+
+	//screen.DrawImage(g.waterImage, bgOptions)
+
+//	Draw glass
+	for i:=0; i < g.field.width; i++ {
+		for j := 0; j < g.field.height; j++ {
+			options.GeoM.Reset()
+			options.GeoM.Scale(g.zoom, g.zoom)
+			options.GeoM.Translate(float64(i) * float64(g.cell_size) * g.zoom, float64(j) * float64(g.cell_size) * g.zoom)
+			if (g.field.get(i,j) > 0) {
+				screen.DrawImage(g.bubbleImage, options)
+			} 			
+		}		
 	}
 
 	if (g.over) {
