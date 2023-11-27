@@ -8,10 +8,10 @@ android {
     }
     defaultConfig {
         applicationId "com.flumine.bubbles"
-        minSdkVersion 26
+        minSdkVersion 16
         targetSdkVersion 33
-        versionCode 6
-        versionName '0.6'
+        versionCode 7
+        versionName '0.7'
     }
     buildTypes {
         release {
