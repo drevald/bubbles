@@ -36,6 +36,7 @@ const (
 //go:embed weed2.png
 //go:embed bg.png
 //go:embed water.png
+//go:embed weed4.png
 var f embed.FS
 
 type Matrix struct {
@@ -91,9 +92,11 @@ type Game struct {
 	blockY int
 	cell_size int
 	freq int
+	speed int
 	over bool
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
+	smallWeedImage *ebiten.Image
 	bgImage *ebiten.Image
 	waterImage *ebiten.Image
 	pressed bool
@@ -120,6 +123,10 @@ func (g *Game) Init() {
 	waterImageReader := bytes.NewReader(data)
 	waterImageDecoded, _ := png.Decode(waterImageReader)
 
+	data, _ = f.ReadFile("weed4.png")
+	smallWeedImageReader := bytes.NewReader(data)
+	smallWeedImageDecoded, _ := png.Decode(smallWeedImageReader)
+
 	g.field = &Matrix{
 		cells:make([]int, 10*20),
 		width:10,
@@ -130,12 +137,14 @@ func (g *Game) Init() {
 	g.level = 1
 	g.zoom = 1.0
 	g.cell_size = 10
-	g.freq = 10
+	g.speed = 15
+	g.freq = 15
 	g.over = false
 	g.bubbleImage = ebiten.NewImageFromImage(bubbleImageDecoded)
 	g.weedImage = ebiten.NewImageFromImage(weedImageDecoded)
 	g.bgImage = ebiten.NewImageFromImage(bgImageDecoded)
 	g.waterImage = ebiten.NewImageFromImage(waterImageDecoded)
+	g.smallWeedImage = ebiten.NewImageFromImage(smallWeedImageDecoded)
 
 	tt, _ := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	const dpi = 72
@@ -219,23 +228,52 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	
 	options := &ebiten.DrawImageOptions {}
 	bgOptions := &ebiten.DrawImageOptions {}
+	smallWeedOptions := &ebiten.DrawImageOptions {}
+	weedOptions := &ebiten.DrawImageOptions {}
 	screen.Fill(colors[0])
 
 	screen.DrawImage(g.bgImage, bgOptions)	
 
-	options.GeoM.Translate(0, 60)
+	weedOptions.GeoM.Translate(0, 60)
+	
+	sx, sy := 0, 0
 
-	options.GeoM.Scale(g.zoom, g.zoom)
 	i := (g.counter / 10) % 15
+
+	if (g.level > 1) {
+
 	sx, sy := frameOX+i*frameWidth, frameOY
-	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
+	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), weedOptions)
 
-	//options.GeoM.Translate(40, float64(g.cell_size * bottomHeight))
-	options.GeoM.Translate(40, 0)
-	i = (i + 5) % 15
-	sx, sy = frameOX+i*frameWidth, frameOY
-	screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), options)
+	} 
 
+	if (g.level > 2) {
+		g.speed = 12
+	} 	
+
+	if (g.level > 3) {
+		weedOptions.GeoM.Translate(40, 0)
+		i = (i + 5) % 15
+		sx, sy = frameOX+i*frameWidth, frameOY
+		screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), weedOptions)
+	}
+
+	if (g.level > 4) {
+		g.speed = 9
+	}
+
+	if (g.level > 5) {
+		weedOptions.GeoM.Translate(-70, 0)
+		i = (i + 5) % 15
+		sx, sy = frameOX+i*frameWidth, frameOY
+		screen.DrawImage(g.weedImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), weedOptions)
+	}
+
+	if (g.level > 6) {
+		g.speed = 6
+	}
+
+	screen.DrawImage(g.waterImage, bgOptions)
 
 	// Draw block	
 	if (!g.over) {
@@ -256,11 +294,19 @@ func (g *Game) Draw (screen *ebiten.Image) {
 			g.RemoveLines()
 		}
 
-	}
+	}	
 
+	smallWeedOptions.GeoM.Translate(15, 145)
+	i = (i + 5) % 15
+	sx, sy = frameOX+i*28, frameOY
+	screen.DrawImage(g.smallWeedImage.SubImage(image.Rect(sx, sy, sx+28, sy+44)).(*ebiten.Image), smallWeedOptions)
+
+	smallWeedOptions.GeoM.Translate(35, 0)
+	i = (i + 5) % 15
+	sx, sy = frameOX+i*28, frameOY
+	screen.DrawImage(g.smallWeedImage.SubImage(image.Rect(sx, sy, sx+28, sy+44)).(*ebiten.Image), smallWeedOptions)
 
 	screen.DrawImage(g.waterImage, bgOptions)
-	//screen.DrawImage(g.waterImage, bgOptions)
 
 	vector.DrawFilledRect(screen, 0, 
 		float32(g.cell_size * (g.field.height - bottomHeight)), 
@@ -322,7 +368,7 @@ func (g *Game) MergeBlock() {
 		}
 	}	
 	g.block = nil
-	g.freq = 25
+	g.freq = g.speed
 }
 
 func (g *Game) LineFull (j int) bool {
@@ -346,6 +392,23 @@ func (g *Game) RemoveLines() {
 	for j:=0; j < g.field.height; j++ {
 		for g.LineFull(j) {
 			g.lines++
+			fmt.Printf("g.lines = %d\n",  g.lines)
+			if (g.lines < 2) {
+				fmt.Println("A")
+				g.level = 2
+			} else if (g.lines < 4) {
+				fmt.Println("B")
+				g.level = 3
+			} else if (g.lines < 8) {
+				fmt.Println("C")
+				g.level = 4
+			} else if (g.lines < 16) {
+				fmt.Println("D")
+				g.level = 5
+			} else {
+				fmt.Println("E")
+				g.level = 6
+			} 
 			g.RemoveLine(j)
 		}
 	}
@@ -512,12 +575,4 @@ func (g *Game) UnRotate() {
 
 func (g *Game) Layout (outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {	
 	return g.field.width * g.cell_size, g.field.height * g.cell_size
-	//fmt.Println("Layout")
-	// if (g.screenWidth == 0 || g.screenHeight == 0) {
-	// 	g.screenHeight = outsideHeight
-	// 	g.screenWidth = outsideWidth		
-	// 	g.zoom = float64(outsideHeight / 200)
-	// 	fmt.Printf("zoom is %f\n", float64(outsideHeight / 200))
-	// }
-	// return outsideWidth, outsideHeight
 }
