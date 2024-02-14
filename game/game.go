@@ -94,6 +94,7 @@ type Game struct {
 	freq int
 	speed int
 	over bool
+	splash bool
 	bubbleImage *ebiten.Image
 	weedImage *ebiten.Image
 	smallWeedImage *ebiten.Image
@@ -140,6 +141,7 @@ func (g *Game) Init() {
 	g.speed = 15
 	g.freq = 15
 	g.over = false
+	g.splash = true
 	g.bubbleImage = ebiten.NewImageFromImage(bubbleImageDecoded)
 	g.weedImage = ebiten.NewImageFromImage(weedImageDecoded)
 	g.bgImage = ebiten.NewImageFromImage(bgImageDecoded)
@@ -202,11 +204,75 @@ var (
 	smallFont		font.Face
 )
 
+func (g *Game) DrawBlock(screen *ebiten.Image, options *ebiten.DrawImageOptions) {
+
+		for i:=0; i<g.block.width; i++ {
+			for j:=0; j<g.block.height; j++ {
+				options.GeoM.Reset()
+				options.GeoM.Scale(g.zoom, g.zoom)
+		 		options.GeoM.Translate(float64(g.blockX + i) * float64(g.cell_size) * g.zoom, float64(g.blockY + j) * float64(g.cell_size) * g.zoom)
+		 		if (g.block.get(i, j) > 0) {
+		 			screen.DrawImage(g.bubbleImage, options)
+		 		}			
+		 	}
+		}	
+
+}
+
 func (g *Game) Draw (screen *ebiten.Image) {
 
 	//fmt.Println("Width is " + screen.Bounds().String())
 
 	g.counter++
+
+	if g.splash == true {
+		if (g.counter > 400) {
+			g.splash = false
+			g.block = nil
+		} else if (g.counter > 0 && g.counter < 100) {
+			bgOptions := &ebiten.DrawImageOptions {}
+			screen.DrawImage(g.bgImage, bgOptions)
+			screen.DrawImage(g.waterImage, bgOptions)
+			g.block = &blocks[1]
+			g.blockX = (g.field.width/2) - 1
+			g.blockY = g.field.height/2
+			g.blockX += (g.counter % 50)/10
+			g.DrawBlock(screen, bgOptions)
+		} else if (g.counter > 100 && g.counter < 200) {
+			bgOptions := &ebiten.DrawImageOptions {}
+			screen.DrawImage(g.bgImage, bgOptions)
+			screen.DrawImage(g.waterImage, bgOptions)
+			g.block = &blocks[1]
+			g.blockX = (g.field.width/2) - 1
+			g.blockY = g.field.height/2 
+			g.blockY -= (g.counter % 50)/2
+			g.DrawBlock(screen, bgOptions)
+		} else if (g.counter > 200 && g.counter < 300) {
+			bgOptions := &ebiten.DrawImageOptions {}
+			screen.DrawImage(g.bgImage, bgOptions)
+			screen.DrawImage(g.waterImage, bgOptions)
+			g.block = &blocks[1]
+			g.blockX = (g.field.width/2) - 1
+			g.blockY = g.field.height/2
+			g.blockX -= (g.counter % 50)/10
+			g.DrawBlock(screen, bgOptions)
+		} else if (g.counter > 300 && g.counter < 400) {
+			bgOptions := &ebiten.DrawImageOptions {}
+			screen.DrawImage(g.bgImage, bgOptions)
+			screen.DrawImage(g.waterImage, bgOptions)
+			g.block = &blocks[1]
+			g.blockX = (g.field.width/2) - 1
+			g.blockY = g.field.height/2				
+			i := 1
+			for i <= g.counter / 25 {
+				i = i + 1
+				g.Rotate()
+			}			
+			g.DrawBlock(screen, bgOptions)
+
+		}
+		return
+	}
 
 	if g.block == nil && !g.over {
 
@@ -278,16 +344,7 @@ func (g *Game) Draw (screen *ebiten.Image) {
 	// Draw block	
 	if (!g.over) {
 
-		for i:=0; i<g.block.width; i++ {
-			for j:=0; j<g.block.height; j++ {
-				options.GeoM.Reset()
-				options.GeoM.Scale(g.zoom, g.zoom)
-				options.GeoM.Translate(float64(g.blockX + i) * float64(g.cell_size) * g.zoom, float64(g.blockY + j) * float64(g.cell_size) * g.zoom)
-				if (g.block.get(i, j) > 0) {
-					screen.DrawImage(g.bubbleImage, options)
-				}			
-			}
-		}	
+		g.DrawBlock(screen, options)
 
 		if (g.BlockLanded()) {
 			g.MergeBlock()
