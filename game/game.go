@@ -55,7 +55,6 @@ func (m *Matrix) set(i, j, value int) {
 } 
 
 func (m *Matrix) RotateRight() *Matrix {
-	fmt.Println("Rotating right")
 	mRot := &Matrix{cells:make([]int, len(m.cells)), width:m.height, height: m.width }
 	for i:=0; i < m.width; i++ {
 		for j := 0; j < m.height; j++ {
@@ -130,6 +129,10 @@ func (g *Game) Init() {
 	smallWeedImageReader := bytes.NewReader(data)
 	smallWeedImageDecoded, _ := png.Decode(smallWeedImageReader)
 
+	data, _ = f.ReadFile("hand.png")
+	handImageReader := bytes.NewReader(data)
+	handImageDecoded, _ := png.Decode(handImageReader)
+
 	g.field = &Matrix{
 		cells:make([]int, 10*20),
 		width:10,
@@ -149,6 +152,7 @@ func (g *Game) Init() {
 	g.bgImage = ebiten.NewImageFromImage(bgImageDecoded)
 	g.waterImage = ebiten.NewImageFromImage(waterImageDecoded)
 	g.smallWeedImage = ebiten.NewImageFromImage(smallWeedImageDecoded)
+	g.handImage = ebiten.NewImageFromImage(handImageDecoded)
 
 	tt, _ := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	const dpi = 72
@@ -188,7 +192,11 @@ var colors []color.RGBA	= []color.RGBA{
 	{0, 255, 255, 255},
 	{255, 255, 255, 255},			
 	{34, 142, 143, 255},	
+	{255, 79, 205, 255},	
 }
+
+var magenta color.RGBA = color.RGBA{255, 79, 205, 255};
+var darkMagenta color.RGBA = color.RGBA{225, 0, 183, 255};
 
 var blocks = []Matrix{
 	{cells:[]int{1, 1, 1, 1}, width: 2, height: 2},
@@ -227,52 +235,79 @@ func (g *Game) Draw (screen *ebiten.Image) {
 
 	g.counter++
 
-	if g.splash == true {
+	if g.splash {
 		if (g.counter > 400) {
-			g.splash = false
-			g.block = nil
+			g.counter = 0
 		} else if (g.counter > 0 && g.counter < 100) {
 			bgOptions := &ebiten.DrawImageOptions {}
 			screen.DrawImage(g.bgImage, bgOptions)
 			screen.DrawImage(g.waterImage, bgOptions)
 			g.block = &blocks[1]
 			g.blockX = (g.field.width/2) - 1
-			g.blockY = g.field.height/2
+			g.blockY = g.field.height/2 - 2
 			g.blockX += (g.counter % 50)/10
 			g.DrawBlock(screen, bgOptions)
+			handOptions := &ebiten.DrawImageOptions {}
+			handOptions.GeoM.Translate(70, 90);
+			if (g.counter % 20 > 10) {
+				screen.DrawImage(g.handImage, handOptions)			
+			}		
+			text.Draw(screen, "To move \nbubbbles right \ntap right side", smallFont, 10, 140, magenta);
 		} else if (g.counter > 100 && g.counter < 200) {
 			bgOptions := &ebiten.DrawImageOptions {}
 			screen.DrawImage(g.bgImage, bgOptions)
 			screen.DrawImage(g.waterImage, bgOptions)
 			g.block = &blocks[1]
 			g.blockX = (g.field.width/2) - 1
-			g.blockY = g.field.height/2 
-			g.blockY -= (g.counter % 50)/2
-			g.DrawBlock(screen, bgOptions)
+			g.blockY = g.field.height/2 - 2
+			g.blockY -= (g.counter % 50)/1
+			g.DrawBlock(screen, bgOptions)		
+			handOptions := &ebiten.DrawImageOptions {}
+			handOptions.GeoM.Translate(45, 20);
+			if (g.counter % 20 > 10) {
+				screen.DrawImage(g.handImage, handOptions)			
+			}		
+			text.Draw(screen, "To drop \nbubbbles up \ntap top side", smallFont, 10, 60, darkMagenta);
 		} else if (g.counter > 200 && g.counter < 300) {
 			bgOptions := &ebiten.DrawImageOptions {}
 			screen.DrawImage(g.bgImage, bgOptions)
 			screen.DrawImage(g.waterImage, bgOptions)
 			g.block = &blocks[1]
 			g.blockX = (g.field.width/2) - 1
-			g.blockY = g.field.height/2
+			g.blockY = g.field.height/2 - 2
 			g.blockX -= (g.counter % 50)/10
 			g.DrawBlock(screen, bgOptions)
+			handOptions := &ebiten.DrawImageOptions {}
+			handOptions.GeoM.Translate(10, 90);
+			if (g.counter % 20 > 10) {
+				screen.DrawImage(g.handImage, handOptions)			
+			}		
+			text.Draw(screen, "To move \nbubbbles left \ntap left side", smallFont, 10, 140, magenta);
 		} else if (g.counter > 300 && g.counter < 400) {
 			bgOptions := &ebiten.DrawImageOptions {}
 			screen.DrawImage(g.bgImage, bgOptions)
 			screen.DrawImage(g.waterImage, bgOptions)
 			g.block = &blocks[1]
 			g.blockX = (g.field.width/2) - 1
-			g.blockY = g.field.height/2				
+			g.blockY = g.field.height/2	- 2			
 			i := 1
 			for i <= g.counter / 25 {
 				i = i + 1
 				g.Rotate()
 			}			
 			g.DrawBlock(screen, bgOptions)
-
+			handOptions := &ebiten.DrawImageOptions {}
+			handOptions.GeoM.Translate(45, 90);
+			if (g.counter % 50 > 25) {
+				screen.DrawImage(g.handImage, handOptions)			
+			}	
+			text.Draw(screen, "To rotate \nfigure clockwise \ntap it", smallFont, 10, 140, magenta);	
 		}
+
+		vector.DrawFilledRect(screen, 10, 175, 70, 15, darkMagenta, false)
+		vector.DrawFilledRect(screen, 11, 176, 70, 15, magenta, false)
+		text.Draw(screen, "SKIP INTRO", smallFont, 14, 186, color.White)	
+
 		return
 	}
 
@@ -474,6 +509,16 @@ func (g *Game) RemoveLines() {
 }
 
 func (g *Game) Update () error {
+
+
+	if (g.splash) {
+		x, y := ebiten.CursorPosition()
+		if (x > 10 && x < 80 && y > 175 && y < 190) {
+			g.splash = false
+			g.block = nil
+		}
+	}
+
 
 	//fmt.Println("Update")
 
