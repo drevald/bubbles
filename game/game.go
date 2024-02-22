@@ -37,6 +37,7 @@ const (
 //go:embed bg.png
 //go:embed water.png
 //go:embed weed4.png
+//go:embed hand.png
 var f embed.FS
 
 type Matrix struct {
@@ -100,6 +101,7 @@ type Game struct {
 	smallWeedImage *ebiten.Image
 	bgImage *ebiten.Image
 	waterImage *ebiten.Image
+	handImage *ebiten.Image
 	pressed bool
 	zoom float64
 }
