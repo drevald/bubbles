@@ -520,9 +520,9 @@ func (g *Game) Update () error {
 
 	if (ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)) {
 		x, y := ebiten.CursorPosition()
-		if (x > 20 && x < 80 && y > 100 && y < 120) {
+		if x > 20 && x < 80 && y > 100 && y < 120 && !g.splash {
 			g.pressed = true
-		} else if (x > 10 && x < 80 && y > 175 && y < 190) {
+		} else if x > 10 && x < 80 && y > 175 && y < 190 && g.splash {
 			g.splashPressed = true
 		}
 	} else if g.splashPressed {
@@ -553,7 +553,7 @@ func (g *Game) Update () error {
 			fmt.Printf("Touch id = %d pos (%d, %d) dur %d released %t\n", ids[i], x, y, z, b)
 			if !g.over {
 				if (g.Intersects(g.block, x, y)) {
-					g.Rotate()
+					g.Rotate()  
 				} else if (x < 50 && y > 50) {
 					g.MoveLeft()
 				} else if (x > 50 && y > 50) {
@@ -561,19 +561,6 @@ func (g *Game) Update () error {
 				} else if (y < 50) {
 					g.Drop()
 				} 
-			} else if g.splash {
-				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
-				if (x > 10 && x < 80 && y > 175 && y < 190) {
-					fmt.Println("A");
-					g.splashPressed = true
-				} else if g.pressed {
-					fmt.Println("B");
-					g.splashPressed = false
-					g.splash = true
-				} else {
-					fmt.Println("C");
-					g.splashPressed = false
-				}
 			} else {
 				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
 				if (x > 20 && x < 80 && y > 100 && y < 120) {
@@ -593,6 +580,22 @@ func (g *Game) Update () error {
 					g.pressed = false
 				}
 			}
+
+			if g.splash {
+				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
+				if (x > 10 && x < 80 && y > 175 && y < 190) {
+					fmt.Println("A");
+					g.splashPressed = true
+				} else if g.splashPressed {
+					fmt.Println("B");
+					g.splashPressed = false
+					g.splash = false
+				} else {
+					fmt.Println("C");
+					g.splashPressed = false
+				}
+			}
+
 		}
 	}
 
