@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-	// splash := &game.Splash{}
-	// ebiten.RunGame(splash)
 	g := &game.Game{}
 	g.Init()	
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)

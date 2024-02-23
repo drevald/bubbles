@@ -102,6 +102,7 @@ type Game struct {
 	waterImage *ebiten.Image
 	handImage *ebiten.Image
 	pressed bool
+	splashPressed bool
 	zoom float64
 }
 
@@ -304,9 +305,14 @@ func (g *Game) Draw (screen *ebiten.Image) {
 			text.Draw(screen, "To rotate \nfigure clockwise \ntap it", smallFont, 10, 140, magenta);	
 		}
 
-		vector.DrawFilledRect(screen, 10, 175, 70, 15, darkMagenta, false)
-		vector.DrawFilledRect(screen, 11, 176, 70, 15, magenta, false)
-		text.Draw(screen, "SKIP INTRO", smallFont, 14, 186, color.White)	
+		if g.splashPressed {
+			vector.DrawFilledRect(screen, 10, 175, 60, 15, magenta, false)
+			text.Draw(screen, "SKIP INTRO", smallFont, 13, 187, color.White)		
+		} else {
+			vector.DrawFilledRect(screen, 10, 175, 60, 15, darkMagenta, false)
+			vector.DrawFilledRect(screen, 11, 176, 60, 15, magenta, false)
+			text.Draw(screen, "SKIP INTRO", smallFont, 14, 186, color.White)		
+		}
 
 		return
 	}
@@ -510,23 +516,19 @@ func (g *Game) RemoveLines() {
 
 func (g *Game) Update () error {
 
-
-	if (g.splash) {
-		x, y := ebiten.CursorPosition()
-		if (x > 10 && x < 80 && y > 175 && y < 190) {
-			g.splash = false
-			g.block = nil
-		}
-	}
-
-
 	//fmt.Println("Update")
 
 	if (ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)) {
 		x, y := ebiten.CursorPosition()
 		if (x > 20 && x < 80 && y > 100 && y < 120) {
 			g.pressed = true
+		} else if (x > 10 && x < 80 && y > 175 && y < 190) {
+			g.splashPressed = true
 		}
+	} else if g.splashPressed {
+		g.splashPressed = false
+		g.splash = false
+		g.block = nil
 	} else if g.pressed {
 		g.pressed = false
 		g.over = false
@@ -549,7 +551,7 @@ func (g *Game) Update () error {
 			z := inpututil.TouchPressDuration(ids[i])
 			x, y := ebiten.TouchPosition(ids[i])
 			fmt.Printf("Touch id = %d pos (%d, %d) dur %d released %t\n", ids[i], x, y, z, b)
-			if (!g.over) {
+			if !g.over {
 				if (g.Intersects(g.block, x, y)) {
 					g.Rotate()
 				} else if (x < 50 && y > 50) {
@@ -559,6 +561,19 @@ func (g *Game) Update () error {
 				} else if (y < 50) {
 					g.Drop()
 				} 
+			} else if g.splash {
+				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
+				if (x > 10 && x < 80 && y > 175 && y < 190) {
+					fmt.Println("A");
+					g.splashPressed = true
+				} else if g.pressed {
+					fmt.Println("B");
+					g.splashPressed = false
+					g.splash = true
+				} else {
+					fmt.Println("C");
+					g.splashPressed = false
+				}
 			} else {
 				fmt.Printf("pressed = %t over = %t\n", g.pressed, g.over)
 				if (x > 20 && x < 80 && y > 100 && y < 120) {
