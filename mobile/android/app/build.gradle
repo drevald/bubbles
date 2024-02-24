@@ -6,8 +6,8 @@ android {
         applicationId "com.flumine.bubbles"
         minSdkVersion 16
         targetSdkVersion 33
-        versionCode 8
-        versionName '0.8'
+        versionCode 9
+        versionName '0.9'
     }
     buildTypes {
         release {
